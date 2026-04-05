@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drexel Hill Chatbot Demo</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+body { background: #f0f4f8; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+.container { width: 100%; max-width: 480px; }
+h1 { font-size: 18px; color: #1F3864; margin-bottom: 6px; }
+p.sub { font-size: 13px; color: #666; margin-bottom: 14px; }
+.tab-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab { padding: 7px 14px; border: 1px solid #2E75B6; border-radius: 20px; font-size: 13px; cursor: pointer; background: #fff; color: #2E75B6; }
+.tab.active { background: #1F3864; color: #fff; border-color: #1F3864; }
+.phone { background: #e8edf2; border-radius: 24px; padding: 10px; border: 1px solid #ccc; }
+.chat-header { background: #1F3864; border-radius: 16px 16px 0 0; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: #2E75B6; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.chat-title { color: #fff; font-size: 14px; font-weight: bold; }
+.chat-sub { color: rgba(255,255,255,.7); font-size: 11px; }
+.chat-body { background: #fff; padding: 12px; height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.msg { max-width: 82%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+.bot { background: #E8F0FE; color: #1F3864; border-radius: 14px 14px 14px 4px; align-self: flex-start; }
+.user { background: #1F3864; color: #fff; border-radius: 14px 14px 4px 14px; align-self: flex-end; }
+.choices { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: #fff; }
+.cbtn { background: #fff; border: 1px solid #2E75B6; color: #1F3864; border-radius: 20px; padding: 6px 13px; font-size: 12px; cursor: pointer; }
+.cbtn:hover { background: #E8F0FE; }
+.input-row { display: flex; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid #eee; border-radius: 0 0 16px 16px; align-items: center; }
+.cinput { flex: 1; border: 1px solid #ccc; border-radius: 20px; padding: 8px 14px; font-size: 13px; outline: none; }
+.sbtn { background: #1F3864; color: #fff; border: none; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 17px; }
+.restart { display: block; margin: 10px auto 0; background: none; border: 1px solid #ccc; border-radius: 8px; padding: 5px 16px; font-size: 12px; color: #666; cursor: pointer; }
+.lead-box { background: #E2EFDA; border: 1px solid #639922; border-radius: 10px; padding: 12px 14px; margin-top: 14px; font-size: 12px; color: #3B6D11; display: none; }
+.lead-box strong { display: block; font-size: 13px; margin-bottom: 8px; }
+.lrow { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(99,153,34,.2); }
+.lrow:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Drexel Hill AI Chatbot Demo</h1>
+  <p class="sub">Select a business type to see how the chatbot works. This is what you show owners.</p>
+  <div class="tab-row">
+    <button class="tab active" onclick="load('auto',this)">Auto Shop</button>
+    <button class="tab" onclick="load('law',this)">Law Firm</button>
+    <button class="tab" onclick="load('restaurant',this)">Restaurant</button>
+    <button class="tab" onclick="load('salon',this)">Salon</button>
+  </div>
+  <div class="phone">
+    <div class="chat-header">
+      <div class="avatar" id="ico">🔧</div>
+      <div>
+        <div class="chat-title" id="ttl">Peppy's Automotive</div>
+        <div class="chat-sub" id="sub">Typically replies instantly</div>
+      </div>
+    </div>
+    <div class="chat-body" id="body"></div>
+    <div class="choices" id="choices"></div>
+    <div class="input-row">
+      <input class="cinput" id="inp" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')send()">
+      <button class="sbtn" onclick="send()">&#9658;</button>
+    </div>
+  </div>
+  <button class="restart" onclick="load(cur,null)">&#8635; Restart</button>
+  <div class="lead-box" id="lbox">
+    <strong>&#10003; Lead captured — owner notified instantly</strong>
+    <div id="lcontent"></div>
+  </div>
+</div>
+<script>
+const F={
+  auto:{ico:"🔧",ttl:"Peppy's Automotive",sub:"Typically replies instantly",steps:[
+    {b:"Hi! I'm the virtual assistant for Peppy's Automotive — here 24/7 to help. Are you a new or returning customer?",c:["New customer","Returning customer"]},
+    {b:"What's going on with your vehicle today?",c:["Engine / warning light","Brakes or tires","Inspection / emissions","Something else"]},
+    {b:"Got it! I'll flag this for our mechanic. What's your name?",i:true,p:"Your first name..."},
+    {b:"Thanks {n}! Best number to reach you?",i:true,p:"Your phone number..."},
+    {b:"Perfect. A mechanic will call you within 2 business hours. Anything else to add?",c:["Nope, all set","Yes, one more thing"]},
+    {b:"You're all set {n}! We'll be in touch shortly. Peppy's has served Drexel Hill since 1966 — you're in good hands. 🚗",done:true}
+  ]},
+  law:{ico:"⚖️",ttl:"Stapleton & Colden",sub:"Legal intake — confidential",steps:[
+    {b:"Hello — I'm a virtual intake assistant for Stapleton & Colden. I am not an attorney and this is not legal advice. What type of matter do you need help with?",c:["Personal injury / accident","Estate / elder law","Criminal defense","Family law","Other"]},
+    {b:"Understood. How urgent is your situation?",c:["Emergency — need help today","Need help within a week","No immediate deadline"]},
+    {b:"To connect you with the right attorney, may I have your full name?",i:true,p:"Your full name..."},
+    {b:"Thank you {n}. Best number for our team to reach you?",i:true,p:"Phone number..."},
+    {b:"We've received your intake request. An attorney will contact you within 1 business day. All information is strictly confidential. Anything brief to add?",c:["No, that's all","Yes, briefly..."]},
+    {b:"{n}, thank you for contacting Stapleton & Colden. You'll hear from us very soon. Please save case details for your direct consultation with an attorney.",done:true}
+  ]},
+  restaurant:{ico:"🍽️",ttl:"Streetlight Kitchen & Bar",sub:"We reply within the hour",steps:[
+    {b:"Welcome to Streetlight Kitchen & Bar! How can I help you today?",c:["Make a reservation","Plan a private event","Menu questions","Hours & location"]},
+    {b:"We'd love to host you! How many guests are you expecting?",c:["Under 20","20–50 guests","50+ guests"]},
+    {b:"What's the occasion?",c:["Birthday / anniversary","Corporate event","Holiday party","Other celebration"]},
+    {b:"Wonderful! Do you have a date in mind?",i:true,p:"Approximate date..."},
+    {b:"Great! What's your name so our events team can follow up?",i:true,p:"Your name..."},
+    {b:"Perfect, {n}! Our events manager will reach out within 24 hours. We can't wait to help you celebrate! 🥂",done:true}
+  ]},
+  salon:{ico:"💅",ttl:"Bamboo Spa DH",sub:"Book anytime — we reply fast",steps:[
+    {b:"Welcome to Bamboo Spa! What service are you looking for today?",c:["Nails (mani/pedi)","Eyelash extensions","Facial / waxing","Spray tan","Something else"]},
+    {b:"Lovely! Any preferred technician or should we match you with the next available?",c:["Any available","I have a preference"]},
+    {b:"What days/times work best for you?",c:["Weekday mornings","Weekday evenings","Weekend anytime"]},
+    {b:"What's your name?",i:true,p:"Your name..."},
+    {b:"And the best number or email to confirm your appointment, {n}?",i:true,p:"Phone or email..."},
+    {b:"You're all set, {n}! We'll confirm your appointment within a few hours. Can't wait to pamper you! ✨",done:true}
+  ]}
+};
+
+let cur='auto',step=0,name='',lead={};
+
+function load(type,btn){
+  cur=type;step=0;name='';lead={type};
+  if(btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}
+  const f=F[type];
+  document.getElementById('ico').textContent=f.ico;
+  document.getElementById('ttl').textContent=f.ttl;
+  document.getElementById('sub').textContent=f.sub;
+  document.getElementById('body').innerHTML='';
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('inp').value='';
+  document.getElementById('lbox').style.display='none';
+  setTimeout(()=>show(),300);
+}
+
+function show(){
+  const f=F[cur];
+  if(step>=f.steps.length)return;
+  const s=f.steps[step];
+  addMsg(s.b.replace('{n}',name||'there'),'bot');
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('inp').placeholder=s.i?(s.p||'Type here...'):'Type your answer...';
+  document.getElementById('inp').disabled=!s.i&&!!s.c;
+  if(s.c){s.c.forEach(c=>{const b=document.createElement('button');b.className='cbtn';b.textContent=c;b.onclick=()=>pick(c);document.getElementById('choices').appendChild(b);});}
+  if(s.done){document.getElementById('choices').innerHTML='';document.getElementById('inp').disabled=true;showLead();}
+}
+
+function pick(c){
+  if(step===1&&!lead.issue)lead.issue=c;
+  addMsg(c,'user');
+  document.getElementById('choices').innerHTML='';
+  step++;setTimeout(()=>show(),500);
+}
+
+function send(){
+  const v=document.getElementById('inp').value.trim();
+  if(!v)return;
+  addMsg(v,'user');
+  document.getElementById('inp').value='';
+  if(step===2){name=v.split(' ')[0];lead.name=v;}
+  if(step===3)lead.contact=v;
+  step++;setTimeout(()=>show(),500);
+}
+
+function addMsg(t,cls){
+  const d=document.createElement('div');d.className='msg '+cls;d.textContent=t;
+  const b=document.getElementById('body');b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+
+function showLead(){
+  const rows=[['Name',lead.name||'—'],['Contact',lead.contact||'—'],['Issue/Service',lead.issue||'—'],['Timestamp',new Date().toLocaleString()]];
+  document.getElementById('lcontent').innerHTML=rows.map(r=>`<div class="lrow"><span>${r[0]}</span><strong>${r[1]}</strong></div>`).join('');
+  document.getElementById('lbox').style.display='block';
+}
+
+load('auto',null);
+</script>
+</body>
+</html>
