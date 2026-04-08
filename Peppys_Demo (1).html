@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peppy's Automotive — ChatPilot Demo</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #1F3864;
+  --teal:   #2E75B6;
+  --ltblue: #E6F1FB;
+  --green:  #E2EFDA;
+  --dkgrn:  #3B6D11;
+  --amber:  #FFF2CC;
+  --red:    #FCE4D6;
+  --gray:   #F5F7FA;
+  --border: #E0E6EF;
+  --text:   #1A2A3A;
+  --muted:  #7A8FA6;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #EEF2F7;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* ── SCREENS ─────────────────────────────────────────────────────── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── SHARED NAV ──────────────────────────────────────────────────── */
+.top-nav {
+  background: var(--navy);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-brand-icon { font-size: 22px; }
+.nav-brand-text { color: #fff; font-size: 15px; font-weight: bold; }
+.nav-brand-sub { color: rgba(255,255,255,.5); font-size: 11px; }
+.nav-badge {
+  background: var(--teal);
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+}
+
+/* ── SELECTOR SCREEN ─────────────────────────────────────────────── */
+#screen-select {
+  background: var(--navy);
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.select-title {
+  color: #fff;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.select-sub {
+  color: rgba(255,255,255,.55);
+  font-size: 14px;
+  margin-bottom: 48px;
+  line-height: 1.6;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.role-card {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 16px;
+  padding: 28px 20px;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  text-align: center;
+}
+.role-card:hover {
+  background: rgba(255,255,255,.14);
+  transform: translateY(-2px);
+}
+.role-card-icon { font-size: 32px; margin-bottom: 12px; }
+.role-card-title { color: #fff; font-size: 15px; font-weight: bold; margin-bottom: 6px; }
+.role-card-desc { color: rgba(255,255,255,.5); font-size: 12px; line-height: 1.5; }
+
+.powered-by {
+  margin-top: 48px;
+  font-size: 11px;
+  color: rgba(255,255,255,.25);
+  letter-spacing: .1em;
+}
+.powered-by span { color: var(--teal); }
+
+/* ── CHATBOT SCREEN ──────────────────────────────────────────────── */
+#screen-chat {
+  background: #EEF2F7;
+}
+
+.chat-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 0 40px rgba(0,0,0,.08);
+  min-height: 100vh;
+}
+
+.chat-header {
+  background: var(--navy);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.chat-header-info { flex: 1; }
+.chat-header-name { color: #fff; font-size: 15px; font-weight: bold; }
+.chat-header-status { color: rgba(255,255,255,.6); font-size: 11px; display: flex; align-items: center; gap: 5px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4CAF50; display: inline-block; }
+
+.chat-body {
+  flex: 1;
+  padding: 18px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 400px;
+}
+
+.msg {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  animation: popIn .25s ease;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg.bot {
+  background: var(--ltblue);
+  color: var(--navy);
+  border-radius: 16px 16px 16px 4px;
+  align-self: flex-start;
+}
+.msg.user {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 16px 16px 4px 16px;
+  align-self: flex-end;
+}
+.msg.typing {
+  background: var(--ltblue);
+  color: var(--muted);
+  font-style: italic;
+  font-size: 13px;
+  align-self: flex-start;
+  border-radius: 16px 16px 16px 4px;
+}
+
+.choices-area {
+  padding: 8px 16px 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.choice {
+  background: #fff;
+  border: 1.5px solid var(--teal);
+  color: var(--navy);
+  border-radius: 20px;
+  padding: 7px 15px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  font-family: Arial, sans-serif;
+}
+.choice:hover { background: var(--ltblue); }
+
+.input-row {
+  padding: 12px 16px;
+  display: none;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+  align-items: center;
+}
+.chat-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  outline: none;
+  background: var(--gray);
+  color: var(--text);
+}
+.chat-input:focus { border-color: var(--teal); background: #fff; }
+.send-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.send-btn:hover { background: var(--teal); }
+
+/* ── NOTIFICATION SCREEN ─────────────────────────────────────────── */
+#screen-notify {
+  background: #1a1a1a;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.phone-mockup {
+  width: 100%;
+  max-width: 340px;
+  background: #2a2a2a;
+  border-radius: 40px;
+  padding: 20px 16px 32px;
+  border: 6px solid #3a3a3a;
+  box-shadow: 0 30px 80px rgba(0,0,0,.6);
+}
+
+.phone-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,.8);
+}
+
+.phone-screen {
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 420px;
+}
+
+.sms-header {
+  background: #F2F2F7;
+  padding: 12px 16px;
+  text-align: center;
+  border-bottom: 1px solid #E5E5EA;
+}
+.sms-contact { font-size: 13px; font-weight: bold; color: #1C1C1E; }
+.sms-number { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+
+.sms-body {
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+}
+
+.sms-bubble {
+  background: #E9E9EB;
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1C1C1E;
+  max-width: 88%;
+  align-self: flex-start;
+  animation: smsIn .4s ease forwards;
+  opacity: 0;
+}
+@keyframes smsIn {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.sms-time { font-size: 10px; color: #8E8E93; text-align: center; margin: 4px 0; }
+
+.sms-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 16px;
+}
+.sms-action-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+.sms-action-btn.call { background: #34C759; color: #fff; }
+.sms-action-btn.view { background: var(--navy); color: #fff; }
+
+.notify-label {
+  text-align: center;
+  margin-top: 28px;
+  color: rgba(255,255,255,.5);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.notify-label strong { color: rgba(255,255,255,.85); display: block; font-size: 16px; margin-bottom: 6px; }
+
+.notify-continue {
+  margin-top: 24px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 14px 32px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: background .15s;
+}
+.notify-continue:hover { background: #1F5A8A; }
+
+/* ── DASHBOARD SCREEN ────────────────────────────────────────────── */
+#screen-dash {
+  background: #EEF2F7;
+  flex-direction: column;
+}
+
+.dash-inner {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+.new-lead-banner {
+  background: #fff;
+  border: 1.5px solid #3B6D11;
+  border-left: 5px solid #3B6D11;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideDown .4s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.banner-icon { font-size: 24px; flex-shrink: 0; }
+.banner-text { flex: 1; }
+.banner-title { font-size: 14px; font-weight: bold; color: var(--dkgrn); }
+.banner-detail { font-size: 12px; color: #555; margin-top: 2px; }
+.banner-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 14px;
+  border: 1px solid var(--border);
+}
+.stat-card.highlight { background: var(--navy); border-color: var(--navy); }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.stat-card.highlight .stat-lbl { color: rgba(255,255,255,.55); }
+.stat-val { font-size: 26px; font-weight: bold; color: var(--navy); line-height: 1; }
+.stat-card.highlight .stat-val { color: #fff; }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.stat-card.highlight .stat-sub { color: rgba(255,255,255,.4); }
+
+.table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.table-hdr {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.table-title { font-size: 14px; font-weight: bold; color: var(--navy); }
+.table-count { font-size: 12px; color: var(--muted); }
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: #F7F9FC;
+  padding: 9px 14px;
+  text-align: left;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid #F0F0F0; cursor: pointer; transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #F7F9FC; }
+tbody td { padding: 11px 14px; font-size: 13px; vertical-align: middle; }
+
+.lead-name { font-weight: bold; color: var(--navy); }
+.lead-phone { color: var(--teal); }
+.issue-pill {
+  display: inline-block;
+  background: var(--ltblue);
+  color: #185FA5;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+}
+.status-pill {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: bold;
+}
+.s-new    { background: var(--red);   color: #993C1D; }
+.s-called { background: var(--amber); color: #854F0B; }
+.s-booked { background: var(--green); color: var(--dkgrn); }
+.s-highlighted { animation: rowPulse 1.5s ease 2; }
+@keyframes rowPulse {
+  0%, 100% { background: #fff; }
+  50% { background: #E2EFDA; }
+}
+
+.action-btn {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+.action-btn.outline {
+  background: none;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+}
+
+.detail-panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 18px;
+  display: none;
+  margin-bottom: 16px;
+}
+.detail-panel.open { display: block; }
+.detail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.detail-name { font-size: 17px; font-weight: bold; color: var(--navy); }
+.close-x { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+.detail-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.detail-field .dlbl { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.detail-field .dval { font-size: 13px; font-weight: bold; color: var(--text); }
+
+.convo-box {
+  background: var(--gray);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+.convo-bot { color: var(--navy); font-weight: bold; }
+.convo-user { color: #555; padding-left: 10px; }
+
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.reset-bar {
+  background: var(--navy);
+  padding: 14px 20px;
+  text-align: center;
+}
+.reset-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.8);
+  border-radius: 20px;
+  padding: 8px 22px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: background .15s;
+}
+.reset-btn:hover { background: rgba(255,255,255,.2); }
+
+@media(max-width:600px){
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .detail-fields { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 1 — ROLE SELECTOR
+══════════════════════════════════════════════════════════ -->
+<div id="screen-select" class="screen active">
+  <div class="select-title">Peppy's Automotive</div>
+  <p class="select-sub">ChatPilot Live Demo<br>Choose your perspective to begin</p>
+
+  <div class="role-grid">
+    <div class="role-card" onclick="startChat()">
+      <div class="role-card-icon">🚗</div>
+      <div class="role-card-title">I'm a Customer</div>
+      <div class="role-card-desc">Experience the chatbot the way a customer would</div>
+    </div>
+    <div class="role-card" onclick="showDash()">
+      <div class="role-card-icon">📋</div>
+      <div class="role-card-title">I'm the Owner</div>
+      <div class="role-card-desc">See the dashboard and leads coming in</div>
+    </div>
+  </div>
+
+  <div class="powered-by">Powered by <span>ChatPilot</span> — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="59383a282c383831343837192038313636773a3634">[email&#160;protected]</a></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 2 — CUSTOMER CHATBOT
+══════════════════════════════════════════════════════════ -->
+<div id="screen-chat" class="screen">
+  <div class="chat-wrap">
+    <div class="chat-header">
+      <div class="chat-avatar">🔧</div>
+      <div class="chat-header-info">
+        <div class="chat-header-name">Peppy's Automotive</div>
+        <div class="chat-header-status"><span class="status-dot"></span> Online — we reply instantly</div>
+      </div>
+    </div>
+
+    <div class="chat-body" id="chat-body"></div>
+    <div class="choices-area" id="choices-area"></div>
+
+    <div class="input-row">
+      <input class="chat-input" id="chat-input" placeholder="Type your answer..."
+             onkeydown="if(event.key==='Enter') sendChat()" disabled>
+      <button class="send-btn" onclick="sendChat()">&#9658;</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 3 — PHONE NOTIFICATION
+══════════════════════════════════════════════════════════ -->
+<div id="screen-notify" class="screen">
+  <div class="phone-mockup">
+    <div class="phone-top">
+      <span id="phone-time">9:47 PM</span>
+      <span>&#9679;&#9679;&#9679;&#9679; WiFi 🔋</span>
+    </div>
+    <div class="phone-screen">
+      <div class="sms-header">
+        <div class="sms-contact">ChatPilot — Peppy's</div>
+        <div class="sms-number">New Lead Notification</div>
+      </div>
+      <div class="sms-body" id="sms-body">
+        <div class="sms-time">Today</div>
+      </div>
+      <div class="sms-actions">
+        <button class="sms-action-btn call" onclick="showDash()">&#128222; Call Back</button>
+        <button class="sms-action-btn view" onclick="showDash()">View Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notify-label">
+    <strong>This is what Pete sees on his phone</strong>
+    The moment a customer finishes chatting —<br>day or night, weekend or holiday.
+  </div>
+  <button class="notify-continue" onclick="showDash()">See the Owner Dashboard &rarr;</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 4 — OWNER DASHBOARD
+══════════════════════════════════════════════════════════ -->
+<div id="screen-dash" class="screen">
+
+  <div class="top-nav">
+    <div class="nav-brand">
+      <span class="nav-brand-icon">🔧</span>
+      <div>
+        <div class="nav-brand-text">Peppy's Automotive</div>
+        <div class="nav-brand-sub">Owner Dashboard — ChatPilot</div>
+      </div>
+    </div>
+    <span class="nav-badge">&#128276; Live</span>
+  </div>
+
+  <div class="dash-inner">
+
+    <div class="new-lead-banner" id="new-banner" style="display:none;">
+      <span class="banner-icon">&#9989;</span>
+      <div class="banner-text">
+        <div class="banner-title" id="banner-title">New lead just came in!</div>
+        <div class="banner-detail" id="banner-detail">—</div>
+      </div>
+      <span class="banner-time" id="banner-time">Just now</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card highlight">
+        <div class="stat-lbl">New this week</div>
+        <div class="stat-val" id="stat-new">6</div>
+        <div class="stat-sub" id="stat-new-sub">2 need callback</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Total (30 days)</div>
+        <div class="stat-val">23</div>
+        <div class="stat-sub">&#8593; 58% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Booked / converted</div>
+        <div class="stat-val">17</div>
+        <div class="stat-sub">74% conversion rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Est. revenue captured</div>
+        <div class="stat-val">$3,960</div>
+        <div class="stat-sub">&#64; avg $233/job</div>
+      </div>
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+      <div class="detail-top">
+        <span class="detail-name" id="dp-name"></span>
+        <button class="close-x" onclick="closeDetail()">&#10005;</button>
+      </div>
+      <div class="detail-fields">
+        <div class="detail-field"><div class="dlbl">Phone</div><div class="dval" id="dp-phone"></div></div>
+        <div class="detail-field"><div class="dlbl">Issue</div><div class="dval" id="dp-issue"></div></div>
+        <div class="detail-field"><div class="dlbl">Customer type</div><div class="dval" id="dp-type"></div></div>
+        <div class="detail-field"><div class="dlbl">Submitted</div><div class="dval" id="dp-time"></div></div>
+      </div>
+      <div class="convo-box" id="dp-convo"></div>
+      <div class="action-row">
+        <button class="action-btn" onclick="markLead('called')">&#128222; Mark as Called</button>
+        <button class="action-btn" onclick="markLead('booked')">&#10003; Mark as Booked</button>
+        <button class="action-btn outline" onclick="closeDetail()">Close</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-hdr">
+        <span class="table-title">Recent Leads</span>
+        <span class="table-count" id="lead-count">6 leads this week</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Issue</th>
+            <th>Received</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="lead-tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="reset-bar">
+    <button class="reset-btn" onclick="resetDemo()">&#8635;&nbsp; Restart Demo</button>
+  </div>
+
+</div><!-- end screen-dash -->
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── DATA ──────────────────────────────────────────────────────────
+const baseLeads = [
+  { name:"Diane Carter",   phone:"610-338-7741", issue:"Brake inspection",       type:"Returning", time:"Yesterday · 7:52 PM",   status:"called",
+    convo:[["Peppy's Bot","Hey there! Welcome to Peppy's Automotive — I'm here 24/7. Are you a new or returning customer?"],["Diane","Returning customer"],["Peppy's Bot","Great to have you back! What's going on with your vehicle today?"],["Diane","Brakes feel spongy, pulling to the left"],["Peppy's Bot","Got it — that's something we definitely want to look at. What's your name?"],["Diane","Diane Carter"],["Peppy's Bot","Thanks Diane! Best number to reach you?"],["Diane","610-338-7741"],["Peppy's Bot","Perfect — our team will call you back within 2 hours. You're in good hands!"],]},
+  { name:"Devon Harris",   phone:"215-901-4422", issue:"PA inspection due",       type:"New",       time:"Fri Apr 4 · 11:03 PM",  status:"booked",
+    convo:[["Peppy's Bot","Hey there! Welcome to Peppy's Automotive — I'm here 24/7. Are you a new or returning customer?"],["Devon","New customer"],["Peppy's Bot","Welcome! What's going on with your vehicle today?"],["Devon","My inspection sticker is expired, need to get it done"],["Peppy's Bot","No problem — we handle PA inspections and emissions. Your name?"],["Devon","Devon Harris"],["Peppy's Bot","Thanks Devon! Best number to reach you?"],["Devon","215-901-4422"],["Peppy's Bot","You're all set — our team will call you back within 2 hours!"],]},
+  { name:"Priya Nair",     phone:"610-204-5531", issue:"Check engine light",      type:"New",       time:"Thu Apr 3 · 6:18 PM",   status:"booked",
+    convo:[["Peppy's Bot","Hey there! Welcome to Peppy's Automotive — I'm here 24/7. New or returning customer?"],["Priya","New customer"],["Peppy's Bot","Welcome! What's going on with your vehicle?"],["Priya","Check engine light came on this morning"],["Peppy's Bot","That's important to get checked. Your name?"],["Priya","Priya Nair"],["Peppy's Bot","Thanks Priya! Best number?"],["Priya","610-204-5531"],["Peppy's Bot","Our mechanic will call you back within 2 hours!"],]},
+  { name:"Ray Simmons",    phone:"215-773-0094", issue:"AC not blowing cold",     type:"Returning", time:"Wed Apr 2 · 8:45 AM",   status:"called",
+    convo:[["Peppy's Bot","Hey there! Welcome to Peppy's — new or returning customer?"],["Ray","Returning"],["Peppy's Bot","Good to have you back! What's going on?"],["Ray","AC stopped blowing cold air"],["Peppy's Bot","Perfect timing to get that looked at. Your name?"],["Ray","Ray Simmons"],["Peppy's Bot","Best number Ray?"],["Ray","215-773-0094"],["Peppy's Bot","Our team will be in touch within 2 hours!"],]},
+  { name:"Tamika Brown",   phone:"610-481-2277", issue:"Tire replacement",        type:"New",       time:"Mon Mar 31 · 9:22 PM",  status:"booked",
+    convo:[["Peppy's Bot","Hey there! Welcome to Peppy's — new or returning?"],["Tamika","New customer"],["Peppy's Bot","Welcome! What's going on with your vehicle?"],["Tamika","Need two new tires, mine are really worn"],["Peppy's Bot","We can take care of that. Your name?"],["Tamika","Tamika Brown"],["Peppy's Bot","Best number?"],["Tamika","610-481-2277"],["Peppy's Bot","Perfect — our team will call you back within 2 hours!"],]},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────
+let leads = JSON.parse(JSON.stringify(baseLeads));
+let newLead = null;
+let step = 0;
+let chatData = {};
+let selectedLead = -1;
+let inputMode = false;
+
+// ── CHATBOT FLOW ──────────────────────────────────────────────────
+const flow = [
+  { bot: "Hey there, neighbor! 👋 Welcome to Peppy's Automotive — family owned right here in Drexel Hill since 1966. I'm here 24 hours a day so you never have to wait. Are you a new or returning customer?",
+    choices: ["New customer", "Returning customer"] },
+  { bot: "What's going on with your vehicle today? Pick the closest or type it in.",
+    choices: ["Engine / warning light", "Brakes or steering", "Oil change / maintenance", "PA inspection / emissions", "Tires", "Something else"] },
+  { bot: "Got it — I'll make sure our mechanic sees this first thing. Can I get your name?",
+    input: true, placeholder: "Your first and last name..." },
+  { bot: "Thanks {name}! And the best phone number to reach you back?",
+    input: true, placeholder: "Your phone number..." },
+  { bot: "Almost done — is there anything else you'd like Pete and the team to know before they call you?",
+    choices: ["Nope, that covers it!", "Yes, one more thing..."] },
+  { bot: "Perfect, {name}! You're all set. 🙌\n\nOur team will call you back within 2 business hours. If it's after hours you'll hear from us first thing in the morning.\n\nPeppy's has been taking care of Drexel Hill's cars for over 50 years — you're in good hands. We'll talk soon!",
+    done: true }
+];
+
+function addMsg(text, cls) {
+  const body = document.getElementById('chat-body');
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.style.whiteSpace = 'pre-line';
+  d.textContent = text;
+  body.appendChild(d);
+  body.scrollTop = body.scrollHeight;
+}
+
+function setChoices(choices) {
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '';
+  if (!choices) return;
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = c;
+    btn.onclick = () => pickChoice(c);
+    area.appendChild(btn);
+  });
+}
+
+function pickChoice(c) {
+  addMsg(c, 'user');
+  document.getElementById('choices-area').innerHTML = '';
+  if (step === 0) chatData.type = c;
+  if (step === 1) chatData.issue = c;
+  step++;
+  setTimeout(() => showStep(), 700);
+}
+
+function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const val = inp.value.trim();
+  if (!val || !inputMode) return;
+  addMsg(val, 'user');
+  inp.value = '';
+  inp.disabled = true;
+  inputMode = false;
+  if (step === 2) { chatData.name = val; chatData.firstName = val.split(' ')[0]; }
+  if (step === 3) chatData.phone = val;
+  step++;
+  setTimeout(() => showStep(), 700);
+}
+
+function showStep() {
+  if (step >= flow.length) return;
+  const s = flow[step];
+  const inp = document.getElementById('chat-input');
+
+  // typing indicator
+  addMsg('Peppy\'s is typing...', 'typing');
+  const body = document.getElementById('chat-body');
+
+  setTimeout(() => {
+    // remove typing
+    const typers = body.querySelectorAll('.msg.typing');
+    typers.forEach(t => t.remove());
+
+    const text = s.bot
+      .replace('{name}', chatData.firstName || 'there')
+      .replace('{name}', chatData.firstName || 'there');
+    addMsg(text, 'bot');
+
+    if (s.done) {
+      document.getElementById('choices-area').innerHTML = '';
+      inp.disabled = true;
+      buildNewLead();
+      setTimeout(() => showNotify(), 1800);
+      return;
+    }
+
+    if (s.choices) {
+      setChoices(s.choices);
+      inp.disabled = true;
+      document.querySelector('.input-row').style.display = 'none';
+      inputMode = false;
+    }
+    if (s.input) {
+      inp.placeholder = s.placeholder || 'Type here...';
+      inp.disabled = false;
+      document.querySelector('.input-row').style.display = 'flex';
+      inp.focus();
+      inputMode = true;
+    }
+  }, 900);
+}
+
+function buildNewLead() {
+  const now = new Date();
+  const timeStr = 'Today · ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  newLead = {
+    name:  chatData.name  || 'New Customer',
+    phone: chatData.phone || '—',
+    issue: chatData.issue || 'General inquiry',
+    type:  chatData.type  || 'New customer',
+    time:  timeStr,
+    status: 'new',
+    isNew: true,
+    convo: [
+      ["Peppy's Bot", flow[0].bot],
+      [chatData.name || "Customer", chatData.type || "New customer"],
+      ["Peppy's Bot", flow[1].bot],
+      [chatData.name || "Customer", chatData.issue || "Vehicle issue"],
+      ["Peppy's Bot", "Got it — I'll make sure our mechanic sees this. Can I get your name?"],
+      [chatData.name || "Customer", chatData.name || "—"],
+      ["Peppy's Bot", "Thanks! Best phone number to reach you?"],
+      [chatData.name || "Customer", chatData.phone || "—"],
+      ["Peppy's Bot", flow[5].bot],
+    ]
+  };
+}
+
+// ── NOTIFICATION ──────────────────────────────────────────────────
+function showNotify() {
+  switchScreen('screen-notify');
+  const now = new Date();
+  document.getElementById('phone-time').textContent =
+    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const smsBody = document.getElementById('sms-body');
+  smsBody.innerHTML = '<div class="sms-time">Today · ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</div>';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'sms-bubble';
+  bubble.style.animationDelay = '.3s';
+  bubble.innerHTML =
+    '&#128295; <b>New Lead — Peppy\'s Chatbot</b><br><br>' +
+    '&#128100; <b>' + (newLead.name || '—') + '</b><br>' +
+    '&#128269; Issue: ' + (newLead.issue || '—') + '<br>' +
+    '&#128222; ' + (newLead.phone || '—') + '<br>' +
+    '&#8618; Tap to view full conversation in dashboard';
+  smsBody.appendChild(bubble);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+function showDash() {
+  switchScreen('screen-dash');
+  renderLeads();
+
+  if (newLead) {
+    // Add to top of leads
+    const exists = leads.find(l => l.isNew);
+    if (!exists) {
+      leads.unshift(newLead);
+      document.getElementById('stat-new').textContent = (baseLeads.length + 1);
+      document.getElementById('stat-new-sub').textContent = '3 need callback';
+      document.getElementById('lead-count').textContent = (leads.length) + ' leads this week';
+    }
+    renderLeads();
+
+    // Banner
+    const banner = document.getElementById('new-banner');
+    banner.style.display = 'flex';
+    document.getElementById('banner-title').textContent = 'New lead just came in — ' + newLead.name + '!';
+    document.getElementById('banner-detail').textContent =
+      newLead.issue + '  ·  ' + newLead.phone + '  ·  ' + newLead.time;
+
+    // Auto-open new lead detail
+    setTimeout(() => openDetail(0), 600);
+  }
+}
+
+const statusLabel = { new: '&#128308; New', called: '&#128994; Called', booked: '&#9989; Booked' };
+const statusClass = { new: 's-new', called: 's-called', booked: 's-booked' };
+
+function renderLeads() {
+  const tbody = document.getElementById('lead-tbody');
+  tbody.innerHTML = '';
+  leads.forEach((l, i) => {
+    const tr = document.createElement('tr');
+    if (l.isNew) tr.classList.add('s-highlighted');
+    tr.innerHTML = `
+      <td><span class="lead-name">${l.name}</span></td>
+      <td><span class="lead-phone">${l.phone}</span></td>
+      <td><span class="issue-pill">${l.issue}</span></td>
+      <td style="color:var(--muted);font-size:12px;">${l.time}</td>
+      <td><span class="status-pill ${statusClass[l.status]}">${statusLabel[l.status]}</span></td>
+      <td><button class="action-btn outline" onclick="openDetail(${i},event)">View</button></td>
+    `;
+    tr.onclick = (e) => { if (!e.target.classList.contains('action-btn')) openDetail(i, e); };
+    tbody.appendChild(tr);
+  });
+}
+
+function openDetail(i, e) {
+  e && e.stopPropagation && e.stopPropagation();
+  selectedLead = i;
+  const l = leads[i];
+  document.getElementById('dp-name').textContent  = l.name;
+  document.getElementById('dp-phone').textContent = l.phone;
+  document.getElementById('dp-issue').textContent = l.issue;
+  document.getElementById('dp-type').textContent  = l.type;
+  document.getElementById('dp-time').textContent  = l.time;
+  document.getElementById('dp-convo').innerHTML   = l.convo.map(([spk, msg]) =>
+    spk.includes('Bot')
+      ? `<div><span class="convo-bot">${spk}:</span> ${msg}</div>`
+      : `<div><span class="convo-user">${spk}:</span> ${msg}</div>`
+  ).join('');
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  selectedLead = -1;
+}
+
+function markLead(status) {
+  if (selectedLead < 0) return;
+  leads[selectedLead].status = status;
+  renderLeads();
+  closeDetail();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startChat() {
+  step = 0; chatData = {}; newLead = null; inputMode = false;
+  document.getElementById('chat-body').innerHTML = '';
+  document.getElementById('choices-area').innerHTML = '';
+  document.getElementById('chat-input').value = '';
+  document.getElementById('chat-input').disabled = true;
+  switchScreen('screen-chat');
+  setTimeout(() => showStep(), 500);
+}
+
+function resetDemo() {
+  leads = JSON.parse(JSON.stringify(baseLeads));
+  newLead = null;
+  document.getElementById('new-banner').style.display = 'none';
+  document.getElementById('stat-new').textContent = baseLeads.length;
+  document.getE
