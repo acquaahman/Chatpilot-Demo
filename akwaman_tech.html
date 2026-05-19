@@ -385,7 +385,25 @@
     #aki-send { background: linear-gradient(135deg, #4ab3c8, #1A7A8C); border: none; border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; align-self: flex-end; transition: opacity 0.2s; }
     #aki-send:hover { opacity: 0.85; }
     #aki-send svg { width: 16px; height: 16px; fill: #fff; }
-    #aki-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    #aki-send:disabled { opacity: 0.4; cursor: not-allowed; }.aki-wake-bubble {
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      background: #1a1e2b;
+      border: 1px solid #4ab3c8;
+      border-radius: 12px;
+      border-bottom-right-radius: 4px;
+      padding: 0.65rem 1rem;
+      font-size: 0.85rem;
+      color: #f0f2f8;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      animation: akiSlideUp 0.3s ease;
+      cursor: pointer;
+    }
+    .aki-wake-bubble::after {
+      content: ' 🌊';
+    }
 </style>
 </head>
 <body>
