@@ -973,7 +973,17 @@ async function notifyLead() {
   } catch (e) { console.error('Lead notify error:', e); }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// Auto-wake after 6 seconds
+setTimeout(() => {
+  if (!akiOpen) {
+    const bubble = document.createElement('div');
+    bubble.className = 'aki-wake-bubble';
+    bubble.textContent = "Hey! Need help finding the right service?";
+    bubble.onclick = () => { bubble.remove(); toggleAki(); };
+    document.getElementById('aki-bubble').appendChild(bubble);
+    setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 8000);
+  }
+}, 6000);document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('aki-input');
   if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAki(); } });
 });
