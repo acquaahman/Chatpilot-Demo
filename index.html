@@ -858,7 +858,7 @@ async function notifyLead() {
     timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
   };
   try {
-    await fetch('https://formspree.io/f/YOUR_AKWAMAN_FORM_ID', {
+    await fetch('https://formspree.io/f/xvzvlyzr', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(leadData)
