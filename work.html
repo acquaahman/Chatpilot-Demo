@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — Akwaman Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a1318;
+      --deep:    #0d1a22;
+      --card:    #111d25;
+      --border:  #1a2d3a;
+      --teal:    #4ab3c8;
+      --teal2:   #2a8fa8;
+      --white:   #f0f4f5;
+      --muted:   #6b8a99;
+      --gold:    #f0a500;
+      --green:   #10b981;
+      --font:    'DM Sans', sans-serif;
+      --display: 'Syne', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--white); line-height: 1.6; overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,19,24,0.92); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: var(--display); font-size: 1.2rem; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: 0.06em; }
+    .nav-logo span { color: var(--teal); }
+    .nav-links { display: flex; gap: 0.5rem; align-items: center; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; padding: 0.4rem 0.8rem; border-radius: 6px; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    .nav-cta { background: var(--teal); color: var(--bg) !important; font-weight: 600 !important; border-radius: 6px; padding: 0.45rem 1rem !important; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--teal2) !important; }
+    @media (max-width: 600px) { .nav-links li:not(:last-child) { display: none; } }
+
+    /* HERO */
+    .hero {
+      padding: 8rem 2rem 5rem;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--teal); background: rgba(74,179,200,0.1); border: 1px solid rgba(74,179,200,0.2);
+      padding: 0.3rem 0.9rem; border-radius: 50px; margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: var(--display); font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800; line-height: 1.1; margin-bottom: 1.25rem; letter-spacing: -0.01em;
+    }
+    .hero h1 span { color: var(--teal); }
+    .hero p { color: var(--muted); font-size: 1.05rem; max-width: 560px; margin: 0 auto 2.5rem; line-height: 1.75; }
+
+    /* STATS */
+    .stats {
+      display: flex; gap: 0; justify-content: center;
+      border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; max-width: 640px; margin: 0 auto 4rem;
+    }
+    .stat {
+      flex: 1; padding: 1.25rem 1rem; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-family: var(--display); font-size: 1.8rem; font-weight: 800; color: var(--teal); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* FILTERS */
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      justify-content: center; padding: 0 2rem 3rem;
+    }
+    .filter-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-family: var(--font); font-size: 0.82rem; font-weight: 500;
+      padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .filter-btn.active { background: var(--teal); border-color: var(--teal); color: var(--bg); }
+
+    /* GRID */
+    .projects-grid {
+      max-width: 1140px; margin: 0 auto; padding: 0 2rem 6rem;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+    }
+    @media (max-width: 900px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .projects-grid { grid-template-columns: 1fr; } }
+
+    /* PROJECT CARD */
+    .project-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      cursor: default;
+    }
+    .project-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(74,179,200,0.3);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .project-card[data-hidden="true"] { display: none; }
+
+    .project-img {
+      width: 100%; aspect-ratio: 16/10; overflow: hidden;
+      background: var(--deep); position: relative;
+    }
+    .project-img img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top;
+      transition: transform 0.4s ease;
+      display: block;
+    }
+    .project-card:hover .project-img img { transform: scale(1.04); }
+
+    .project-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--deep), var(--card));
+      font-size: 2.5rem;
+    }
+
+    .status-badge {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.25rem 0.65rem; border-radius: 50px;
+    }
+    .status-live { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .status-dev  { background: rgba(240,165,0,0.15); color: #fbbf24; border: 1px solid rgba(240,165,0,0.25); }
+
+    .project-body { padding: 1.25rem; }
+
+    .project-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .tag {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.2rem 0.6rem; border-radius: 4px;
+    }
+    .tag-chatbot  { background: rgba(74,179,200,0.12); color: var(--teal); }
+    .tag-website  { background: rgba(99,102,241,0.12); color: #a5b4fc; }
+    .tag-fullbuild{ background: rgba(236,72,153,0.12); color: #f9a8d4; }
+    .tag-recurring{ background: rgba(16,185,129,0.12); color: #6ee7b7; }
+    .tag-agent    { background: rgba(245,158,11,0.12); color: #fcd34d; }
+    .tag-photo    { background: rgba(167,139,250,0.12); color: #c4b5fd; }
+    .tag-event    { background: rgba(251,146,60,0.12); color: #fdba74; }
+
+    .project-name { font-family: var(--display); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--white); }
+    .project-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.65; margin-bottom: 1rem; }
+
+    .project-footer { display: flex; align-items: center; justify-content: space-between; }
+    .project-industry { font-size: 0.75rem; color: var(--muted); }
+    .project-link {
+      font-size: 0.78rem; font-weight: 600; color: var(--teal);
+      text-decoration: none; display: flex; align-items: center; gap: 0.3rem;
+      transition: color 0.2s;
+    }
+    .project-link:hover { color: var(--white); }
+
+    /* CTA */
+    .cta-section {
+      text-align: center; padding: 5rem 2rem 6rem;
+      background: var(--deep); border-top: 1px solid var(--border);
+    }
+    .cta-section h2 { font-family: var(--display); font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 0.75rem; }
+    .cta-section p { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
+    .btn-primary {
+      background: var(--teal); color: var(--bg);
+      padding: 0.9rem 2.25rem; border-radius: 8px;
+      font-weight: 700; font-size: 0.95rem; text-decoration: none;
+      display: inline-block; transition: background 0.2s, transform 0.2s;
+      font-family: var(--font);
+    }
+    .btn-primary:hover { background: var(--teal2); transform: translateY(-2px); }
+
+    /* AKI */
+    #aki-bubble { position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 9999; }
+    #aki-toggle { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4ab3c8, #1A7A8C); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(74,179,200,0.4); transition: transform 0.2s; position: relative; }
+    #aki-toggle:hover { transform: scale(1.08); }
+    #aki-toggle svg { width: 26px; height: 26px; fill: #fff; }
+    #aki-badge { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; background: var(--gold); border-radius: 50%; border: 2px solid var(--bg); display: none; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--bg); }
+    #aki-window { position: absolute; bottom: 68px; right: 0; width: 360px; height: 500px; background: #13161f; border: 1px solid #252a38; border-radius: 16px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+    @media (max-width: 420px) { #aki-window { width: calc(100vw - 2rem); right: -0.75rem; } }
+    #aki-window.open { display: flex; animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .aki-hdr { background: #0a1318; border-bottom: 1px solid #252a38; padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.6rem; }
+    .aki-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#4ab3c8,#1A7A8C); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .aki-hdr-info { flex: 1; }
+    .aki-hdr-name { font-size: 0.88rem; font-weight: 700; color: #f0f2f8; }
+    .aki-hdr-status { font-size: 0.7rem; color: #4ab3c8; display: flex; align-items: center; gap: 3px; }
+    .aki-dot { width: 5px; height: 5px; border-radius: 50%; background: #10b981; }
+    .aki-x { background: none; border: none; color: #7a8099; cursor: pointer; font-size: 1.1rem; padding: 0.2rem; transition: color 0.2s; }
+    .aki-x:hover { color: #f0f2f8; }
+    .aki-msgs { flex: 1; overflow-y: auto; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    .aki-msgs::-webkit-scrollbar { width: 3px; }
+    .aki-msgs::-webkit-scrollbar-thumb { background: #252a38; }
+    .aki-msg { display: flex; gap: 0.45rem; align-items: flex-end; animation: msgIn 0.2s ease; }
+    @keyframes msgIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    .aki-msg.user { flex-direction: row-reverse; }
+    .aki-msg-av { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg,#4ab3c8,#1A7A8C); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; flex-shrink: 0; }
+    .aki-msg-bub { max-width: 84%; padding: 0.6rem 0.8rem; border-radius: 10px; font-size: 0.83rem; line-height: 1.5; }
+    .aki-msg.aki .aki-msg-bub { background: #1a1e2b; border: 1px solid #252a38; color: #d0d8e8; border-bottom-left-radius: 3px; }
+    .aki-msg.user .aki-msg-bub { background: linear-gradient(135deg,#4ab3c8,#1A7A8C); color:#fff; border-bottom-right-radius: 3px; }
+    .aki-typing-bub { display:flex; align-items:center; gap:3px; padding: 0.6rem 0.8rem; background:#1a1e2b; border:1px solid #252a38; border-radius:10px; border-bottom-left-radius:3px; width:fit-content; }
+    .aki-typing-bub span { width:5px; height:5px; border-radius:50%; background:#4ab3c8; animation:typ 1.2s infinite; }
+    .aki-typing-bub span:nth-child(2){animation-delay:.2s;} .aki-typing-bub span:nth-child(3){animation-delay:.4s;}
+    @keyframes typ { 0%,60%,100%{transform:translateY(0);opacity:.4;} 30%{transform:translateY(-4px);opacity:1;} }
+    .aki-qrs { display:flex; flex-wrap:wrap; gap:0.35rem; padding:0 0.9rem 0.4rem; }
+    .aki-qr { background:transparent; border:1px solid #4ab3c8; color:#4ab3c8; border-radius:50px; padding:0.28rem 0.7rem; font-size:0.75rem; cursor:pointer; font-family:var(--font); transition:all 0.2s; }
+    .aki-qr:hover { background:#4ab3c8; color:#0a1318; }
+    .aki-inp-row { display:flex; gap:0.45rem; padding:0.7rem 0.9rem; border-top:1px solid #252a38; background:#0d0f14; }
+    #aki-input { flex:1; background:#1a1e2b; border:1px solid #252a38; border-radius:7px; color:#f0f2f8; font-family:var(--font); font-size:0.85rem; padding:0.5rem 0.75rem; resize:none; transition:border-color 0.2s; }
+    #aki-input:focus { outline:none; border-color:#4ab3c8; }
+    #aki-input::placeholder { color:#7a8099; }
+    #aki-send { background:linear-gradient(135deg,#4ab3c8,#1A7A8C); border:none; border-radius:7px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; align-self:flex-end; transition:opacity 0.2s; }
+    #aki-send:hover { opacity:0.85; }
+    #aki-send svg { width:14px; height:14px; fill:#fff; }
+    #aki-send:disabled { opacity:0.4; cursor:not-allowed; }
+    .aki-wake { position:fixed; bottom:90px; right:24px; background:#1a1e2b; border:1px solid #4ab3c8; border-radius:12px; border-bottom-right-radius:4px; padding:0.6rem 0.9rem; font-size:0.82rem; color:#f0f2f8; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.4); cursor:pointer; font-family:var(--font); z-index:10000; animation:slideUp 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://akwaman.net" class="nav-logo">AKWAMAN<span>.</span>TECH</a>
+  <ul class="nav-links">
+    <li><a href="https://akwaman.net/akwaman_tech.html">Services</a></li>
+    <li><a href="https://akwaman.net/akwaman_tech.html#pricing">Pricing</a></li>
+    <li><a href="https://akwaman.net/work.html" class="active">Projects</a></li>
+    <li><a href="https://akwaman.net/akwaman_tech.html#contact" class="nav-cta">Start a Project</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-label">Our Work</span>
+  <h1>Real Businesses.<br><span>Real Results.</span></h1>
+  <p>From AI chatbots and full website builds to community platforms and brand launches — here's what we've been building.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">9+</div>
+      <div class="stat-label">Projects Built</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Industries Served</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">TX · PA</div>
+      <div class="stat-label">& Growing</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">AI Always On</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">All Projects</button>
+  <button class="filter-btn" data-filter="chatbot">AI Chatbot</button>
+  <button class="filter-btn" data-filter="website">Website Build</button>
+  <button class="filter-btn" data-filter="fullbuild">Full Build</button>
+  <button class="filter-btn" data-filter="recurring">Recurring</button>
+  <button class="filter-btn" data-filter="agent">AI Agent</button>
+</div>
+
+<!-- PROJECTS GRID -->
+<div class="projects-grid">
+
+  <!-- Skillz4Life -->
+  <div class="project-card" data-categories="website fullbuild">
+    <div class="project-img">
+      <img src="images/projects/skillz4life.png" alt="Skillz4Life" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🎓</div>
+      <span class="status-badge status-dev">In Development</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-fullbuild">Full Build</span>
+        <span class="tag tag-agent">AI Mentor</span>
+      </div>
+      <div class="project-name">Skillz4Life</div>
+      <div class="project-desc">Full website build and brand for a youth empowerment nonprofit — with an AI mentor chatbot guiding students, parents, and volunteers through programs, events, and enrollment.</div>
+      <div class="project-footer">
+        <span class="project-industry">Nonprofit · Education</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SRG -->
+  <div class="project-card" data-categories="website fullbuild chatbot">
+    <div class="project-img">
+      <img src="images/projects/srg.png" alt="Smith Reliance Group" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🏗️</div>
+      <span class="status-badge status-dev">In Development</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-fullbuild">Full Build</span>
+        <span class="tag tag-chatbot">AI Chatbot</span>
+      </div>
+      <div class="project-name">Smith Reliance Group</div>
+      <div class="project-desc">Complete digital presence for a Philadelphia-area general contractor — custom site, service pages, and an AI assistant that qualifies leads and routes quote requests automatically.</div>
+      <div class="project-footer">
+        <span class="project-industry">Contracting · Home Services</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Something New & Used -->
+  <div class="project-card" data-categories="website recurring">
+    <div class="project-img">
+      <img src="images/projects/something_new.png" alt="Something New & Used" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">👗</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-website">Website</span>
+        <span class="tag tag-recurring">Recurring</span>
+      </div>
+      <div class="project-name">Something New & Used</div>
+      <div class="project-desc">Mobile-first vintage clothing storefront with curated drops, category filtering, and a clean shopping experience built for weekly inventory updates.</div>
+      <div class="project-footer">
+        <span class="project-industry">Retail · Fashion</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tina Gordon -->
+  <div class="project-card" data-categories="chatbot website">
+    <div class="project-img">
+      <img src="images/projects/tina.png" alt="Expert Appliance Consulting" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🏠</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-chatbot">AI Chatbot</span>
+        <span class="tag tag-website">Website</span>
+      </div>
+      <div class="project-name">Expert Appliance Consulting</div>
+      <div class="project-desc">Lead capture site for a 20+ year appliance sales professional — a conversational chatbot qualifies buyers by appliance type, budget, and features before connecting them with Tina.</div>
+      <div class="project-footer">
+        <span class="project-industry">Consulting · Home Appliances</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- B&H Rides -->
+  <div class="project-card" data-categories="website fullbuild">
+    <div class="project-img">
+      <img src="images/projects/bh_rides.png" alt="B&H Rides" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">✈️</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-fullbuild">Full Build</span>
+        <span class="tag tag-chatbot">Lead Capture</span>
+      </div>
+      <div class="project-name">B&H Rides</div>
+      <div class="project-desc">Community airport transportation service with a full booking system, Supabase database, SMS + email notifications, and an owner dashboard to accept, decline, and track rides.</div>
+      <div class="project-footer">
+        <span class="project-industry">Transportation · Community</span>
+        <a href="https://bh-rides.netlify.app" target="_blank" class="project-link">View Live ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Georgina's 50th -->
+  <div class="project-card" data-categories="website">
+    <div class="project-img">
+      <img src="images/projects/georgina.png" alt="Georgina's 50th" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🎉</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-event">Event</span>
+        <span class="tag tag-website">Website</span>
+      </div>
+      <div class="project-name">Georgina's 50th Surprise</div>
+      <div class="project-desc">A custom memory collection platform for a surprise 50th birthday — guests submit messages, photos, voice notes, and videos with a live countdown to the celebration date.</div>
+      <div class="project-footer">
+        <span class="project-industry">Events · Personal</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Akwaman Photography -->
+  <div class="project-card" data-categories="website">
+    <div class="project-img">
+      <img src="images/projects/photography.png" alt="Akwaman Photography" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">📷</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-photo">Photography</span>
+        <span class="tag tag-website">Website</span>
+      </div>
+      <div class="project-name">Akwaman Photography</div>
+      <div class="project-desc">Professional portfolio site covering events, weddings, portraits, sports, and aerial photography — with a password-protected client gallery system for delivering private shoots.</div>
+      <div class="project-footer">
+        <span class="project-industry">Photography · Philadelphia</span>
+        <a href="https://akwamanphotography.com" target="_blank" class="project-link">View Live ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Akwaman Hub + Aki -->
+  <div class="project-card" data-categories="website agent">
+    <div class="project-img">
+      <img src="images/projects/akwaman_hub.png" alt="Akwaman.net" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🌊</div>
+      <span class="status-badge status-live">Live</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-agent">AI Agent</span>
+        <span class="tag tag-website">Brand Hub</span>
+      </div>
+      <div class="project-name">Akwaman.net + Aki</div>
+      <div class="project-desc">The Akwaman brand hub — four worlds, one destination. Powered by Aki, a Claude-powered AI agent that greets visitors, explains services, qualifies leads, and books discovery calls.</div>
+      <div class="project-footer">
+        <span class="project-industry">Brand · AI</span>
+        <a href="https://akwaman.net" target="_blank" class="project-link">View Live ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Peppy's Demo -->
+  <div class="project-card" data-categories="chatbot agent">
+    <div class="project-img">
+      <img src="images/projects/peppys.png" alt="Peppy's Automotive Demo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="project-img-placeholder" style="display:none;">🚗</div>
+      <span class="status-badge status-live">Live Demo</span>
+    </div>
+    <div class="project-body">
+      <div class="project-tags">
+        <span class="tag tag-chatbot">AI Chatbot</span>
+        <span class="tag tag-agent">Owner Dashboard</span>
+      </div>
+      <div class="project-name">Peppy's Automotive</div>
+      <div class="project-desc">A full-circle chatbot demo for an auto shop — customers describe their vehicle issues, chatbot captures their info, and the owner dashboard shows leads coming in live. Customer and owner views both included.</div>
+      <div class="project-footer">
+        <span class="project-industry">Automotive · Demo</span>
+        <a href="https://akwaman.net/Peppys_Demo.html" target="_blank" class="project-link">View Demo ↗</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Ready to Start Your Project?</h2>
+  <p>Let's talk about what you're building. Aki is standing by — or reach out directly.</p>
+  <a href="https://akwaman.net/akwaman_tech.html#contact" class="btn-primary">Start a Project →</a>
+</div>
+
+<!-- AKI BUBBLE -->
+<div id="aki-bubble">
+  <button id="aki-toggle" onclick="toggleAki()" aria-label="Chat with Aki">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l4.93-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.66 0-3.21-.47-4.53-1.28l-.32-.19-3.32.87.87-3.32-.19-.32C3.47 15.21 3 13.66 3 12c0-4.97 4.03-9 9-9s9 4.03 9 9-4.03 9-9 9z"/></svg>
+    <span id="aki-badge">1</span>
+  </button>
+  <div id="aki-window">
+    <div class="aki-hdr">
+      <div class="aki-av">🌊</div>
+      <div class="aki-hdr-info">
+        <div class="aki-hdr-name">Aki</div>
+        <div class="aki-hdr-status"><span class="aki-dot"></span> Akwaman AI · Online</div>
+      </div>
+      <button class="aki-x" onclick="toggleAki()">✕</button>
+    </div>
+    <div class="aki-msgs" id="aki-msgs"></div>
+    <div class="aki-qrs" id="aki-qrs"></div>
+    <div class="aki-inp-row">
+      <textarea id="aki-input" rows="1" placeholder="Ask me anything…"></textarea>
+      <button id="aki-send" onclick="sendAki()" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const AKI_SYSTEM = `You are Aki, the AI assistant for Akwaman Tech. You're on the Projects page where visitors are browsing Rich's portfolio. Your job is to help them understand what was built, answer questions about specific projects, and convert interested visitors into leads.
+
+PROJECTS ON THIS PAGE:
+- Skillz4Life: nonprofit youth org — full website + AI mentor chatbot (in development)
+- Smith Reliance Group: Philadelphia contractor — full site + AI quote assistant (in development)
+- Something New & Used: vintage clothing — mobile storefront, recurring client
+- Expert Appliance Consulting (Tina Gordon): chatbot lead capture site
+- B&H Rides: community airport service — booking system, Supabase, SMS/email notifications, owner dashboard
+- Georgina's 50th: surprise birthday memory collection platform with countdown
+- Akwaman Photography: portfolio + password-protected client gallery system
+- Akwaman.net + Aki: brand hub with Claude-powered AI agent (that's you!)
+- Peppy's Automotive: full chatbot demo with customer + owner views
+
+AKWAMAN TECH SERVICES & PRICING:
+- Starter: $149/mo + $299 setup
+- Professional: $249/mo + $499 setup
+- Full Build: $1,200 flat
+- Premium: $399/mo + $999 setup
+- À la carte services available for one-off requests
+
+YOUR ROLE:
+- Answer questions about any project on the page
+- Help visitors figure out which package fits their needs
+- Qualify leads and capture name + email for follow-up
+- Keep responses warm, concise (2-3 sentences), and conversational
+- End with: "I've noted your info and Rich will be in touch soon. 🌊" when capturing a lead
+
+CONTACT: rich@akwaman.net | akwaman.net`;
+
+let akiHistory = [];
+let akiOpen = false;
+let akiLeadCaptured = false;
+
+function toggleAki() {
+  akiOpen = !akiOpen;
+  document.getElementById('aki-window').classList.toggle('open', akiOpen);
+  document.getElementById('aki-badge').style.display = 'none';
+  if (akiOpen && akiHistory.length === 0) setTimeout(() => akiGreet(), 300);
+  if (akiOpen) setTimeout(() => document.getElementById('aki-input').focus(), 350);
+}
+
+function akiGreet() {
+  appendMsg('aki', "Hey! I'm Aki 🌊 Browsing the portfolio? I can tell you more about any of these projects or help you figure out what we'd build for you.");
+  showQRs(['Tell me about B&H Rides', 'How much does a chatbot cost?', 'I want something like this', 'Talk to Rich']);
+}
+
+function showQRs(opts) {
+  const qrs = document.getElementById('aki-qrs');
+  qrs.innerHTML = '';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'aki-qr'; b.textContent = o;
+    b.onclick = () => { qrs.innerHTML = ''; sendMsg(o); };
+    qrs.appendChild(b);
+  });
+}
+
+function appendMsg(role, text) {
+  const msgs = document.getElementById('aki-msgs');
+  const d = document.createElement('div');
+  d.className = `aki-msg ${role}`;
+  const av = document.createElement('div'); av.className = 'aki-msg-av'; av.textContent = role === 'aki' ? '🌊' : '👤';
+  const bub = document.createElement('div'); bub.className = 'aki-msg-bub'; bub.innerHTML = text.replace(/\n/g, '<br>');
+  d.appendChild(av); d.appendChild(bub);
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('aki-msgs');
+  const d = document.createElement('div'); d.className = 'aki-msg aki'; d.id = 'aki-typ';
+  const av = document.createElement('div'); av.className = 'aki-msg-av'; av.textContent = '🌊';
+  const t = document.createElement('div'); t.className = 'aki-typing-bub'; t.innerHTML = '<span></span><span></span><span></span>';
+  d.appendChild(av); d.appendChild(t); msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() { const el = document.getElementById('aki-typ'); if (el) el.remove(); }
+
+async function sendAki() {
+  const inp = document.getElementById('aki-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  sendMsg(msg);
+}
+
+async function sendMsg(msg) {
+  document.getElementById('aki-qrs').innerHTML = '';
+  appendMsg('user', msg);
+  akiHistory.push({ role: 'user', content: msg });
+  document.getElementById('aki-send').disabled = true;
+  showTyping();
+  try {
+    const res = await fetch('/.netlify/functions/aki-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: AKI_SYSTEM, messages: akiHistory })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || "Sorry, something went wrong. Email rich@akwaman.net 🌊";
+    akiHistory.push({ role: 'assistant', content: reply });
+    removeTyping();
+    appendMsg('aki', reply);
+    if (!akiLeadCaptured && (reply.includes("Rich will be in touch") || reply.includes("noted your info"))) {
+      akiLeadCaptured = true;
+      fetch('https://formspree.io/f/YOUR_AKWAMAN_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ source: 'Aki — work.html', conversation: akiHistory.map(m => m.role.toUpperCase() + ': ' + m.content).join('\n\n'), timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }) })
+      }).catch(() => {});
+    }
+    const lower = msg.toLowerCase();
+    if (lower.includes('price') || lower.includes('cost') || lower.includes('how much')) showQRs(['Starter package', 'Full Build', 'Tell me more']);
+    else if (lower.includes('similar') || lower.includes('like this') || lower.includes('want')) showQRs(['Share my info', 'Book a call with Rich']);
+  } catch(e) {
+    removeTyping();
+    appendMsg('aki', "Hmm, something went wrong. Reach Rich at rich@akwaman.net 🌊");
+  }
+  document.getElementById('aki-send').disabled = false;
+  document.getElementById('aki-input').focus();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('aki-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAki(); }
+  });
+
+  // Filter logic
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.project-card').forEach(card => {
+        const cats = card.dataset.categories || '';
+        card.dataset.hidden = (filter !== 'all' && !cats.includes(filter)) ? 'true' : 'false';
+      });
+    });
+  });
+});
+
+// Wake bubble after 7 seconds
+setTimeout(() => {
+  if (!akiOpen) {
+    document.getElementById('aki-badge').style.display = 'flex';
+    const w = document.createElement('div');
+    w.className = 'aki-wake';
+    w.textContent = "Curious about any of these projects? 🌊";
+    w.onclick = () => { w.remove(); toggleAki(); };
+    document.body.appendChild(w);
+    setTimeout(() => { if (w.parentNode) w.remove(); }, 8000);
+  }
+}, 7000);
+</script>
+</body>
+</html>
