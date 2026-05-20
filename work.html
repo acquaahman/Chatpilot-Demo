@@ -605,7 +605,7 @@ async function sendMsg(msg) {
     appendMsg('aki', reply);
     if (!akiLeadCaptured && (reply.includes("Rich will be in touch") || reply.includes("noted your info"))) {
       akiLeadCaptured = true;
-      fetch('https://formspree.io/f/YOUR_AKWAMAN_FORM_ID', {
+      fetch('https://formspree.io/f/xvzvlyzr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ source: 'Aki — work.html', conversation: akiHistory.map(m => m.role.toUpperCase() + ': ' + m.content).join('\n\n'), timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }) })
