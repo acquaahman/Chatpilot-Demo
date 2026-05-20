@@ -245,7 +245,8 @@
   }
 
   /* ── PRICING ── */
-  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+  @media (min-width: 1100px) { .pricing-grid { grid-template-columns: repeat(4, 1fr); } }
   .pricing-card { background: var(--card-bg); padding: 2.8rem 2.5rem; position: relative; }
   .pricing-card.featured { background: #162028; outline: 2px solid var(--teal); outline-offset: -1px; }
   .pricing-featured-label {
