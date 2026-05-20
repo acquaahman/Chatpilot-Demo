@@ -445,6 +445,7 @@
     <li><a href="#pricing">Pricing</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Get Started</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 
 <!-- HERO -->
@@ -1059,6 +1060,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('aki-input');
   if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAki(); } });
 });
+</script>
+  <div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-menu-close" id="menuClose">✕</button>
+  <a href="#services" onclick="closeMenu()">Services</a>
+  <a href="#approach" onclick="closeMenu()">Approach</a>
+  <a href="#work" onclick="closeMenu()">Work</a>
+  <a href="/work.html" onclick="closeMenu()">Projects</a>
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#pricing" onclick="closeMenu()">Pricing</a>
+</div>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuClose = document.getElementById('menuClose');
+  function closeMenu() { mobileMenu.classList.remove('open'); }
+  hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+  menuClose.addEventListener('click', closeMenu);
 </script>
 </body>
 </html>
