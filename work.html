@@ -42,7 +42,14 @@
     .nav-links a:hover, .nav-links a.active { color: var(--white); }
     .nav-cta { background: var(--teal); color: var(--bg) !important; font-weight: 600 !important; border-radius: 6px; padding: 0.45rem 1rem !important; transition: background 0.2s !important; }
     .nav-cta:hover { background: var(--teal2) !important; }
-    @media (max-width: 600px) { .nav-links li:not(:last-child) { display: none; } }
+    @media (max-width: 600px) {
+  .nav-links li:not(:last-child) { display: none; }
+  .nav-cta { font-size: 0.75rem; padding: 0.4rem 0.7rem !important; white-space: nowrap; }
+  .stats { flex-wrap: wrap; max-width: 100%; }
+  .stat { flex: 1 1 45%; border-right: none; border-bottom: 1px solid var(--border); }
+  .stat:nth-child(odd) { border-right: 1px solid var(--border); }
+  .stat:nth-child(3), .stat:nth-child(4) { border-bottom: none; }
+}
 
     /* HERO */
     .hero {
